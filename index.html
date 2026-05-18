@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dang District Organic Warehouse Network — AHP‑SCLP‑FRM Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-left">
+      <div class="hdr-eyebrow">Dang District, Gujarat, India</div>
+      <h1 class="hdr-title">Organic Warehouse Location Optimisation</h1>
+      <div class="hdr-sub">AHP–SCLP–FRM Integrated Framework</div>
+    </div>
+    <div class="hdr-meta">
+      <span class="pill pill-green">NPOP / TRACENET Certified</span>
+      <span class="pill">43 ICS Clusters &nbsp;·&nbsp; 44 Candidate Nodes</span>
+      <span class="pill">Talukas: Ahwa, Waghai, Subir</span>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <button class="nav-tab active" data-tab="overview">Overview</button>
+    <button class="nav-tab" data-tab="map">Spatial Map</button>
+    <button class="nav-tab" data-tab="frm">FRM Ranking</button>
+    <button class="nav-tab" data-tab="ahp">AHP Weights</button>
+    <button class="nav-tab" data-tab="sclp">SCLP Scenarios</button>
+    <button class="nav-tab" data-tab="network">Optimal Network</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════ OVERVIEW ══════════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+<div class="page">
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Total Area</div>
+      <div class="kpi-value">97,379</div>
+      <div class="kpi-sub">Hectares</div>
+    </div>
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">ICS Clusters</div>
+      <div class="kpi-value">43</div>
+      <div class="kpi-sub">Candidate nodes: 44</div>
+    </div>
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Enrolled Farmers</div>
+      <div class="kpi-value">11,563</div>
+      <div class="kpi-sub">Across 3 talukas</div>
+    </div>
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Procurement</div>
+      <div class="kpi-value">5,226</div>
+      <div class="kpi-sub">MT / year (target)</div>
+    </div>
+    <div class="kpi kpi-accent-g">
+      <div class="kpi-label">Optimal Warehouses</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">Service radius 20 km</div>
+    </div>
+    <div class="kpi kpi-accent-g">
+      <div class="kpi-label">Top FRM Node</div>
+      <div class="kpi-value">7.97</div>
+      <div class="kpi-sub">Ahwa (rank #1)</div>
+    </div>
+    <div class="kpi kpi-accent-a">
+      <div class="kpi-label">AHP Consistency</div>
+      <div class="kpi-value">0.022</div>
+      <div class="kpi-sub">CR &lt; 0.10 — Acceptable</div>
+    </div>
+    <div class="kpi kpi-accent-a">
+      <div class="kpi-label">Organic Declared</div>
+      <div class="kpi-value">2021</div>
+      <div class="kpi-sub">November — First in India</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Taluka breakdown + Scenario comparison -->
+  <div class="two-col section-gap">
+    <div class="card">
+      <div class="card-title">Taluka distribution</div>
+      <div class="card-subtitle">ICS clusters, farmers and procurement by administrative block</div>
+      <div id="taluka-list"></div>
+      <div style="margin-top:18px">
+        <div class="chart-wrap" style="height:180px">
+          <canvas id="chart-taluka" role="img" aria-label="Bar chart of ICS clusters and enrolled farmers per taluka">Ahwa: 27 clusters, 6947 farmers. Waghai: 12 clusters, 3740 farmers. Subir: 4 clusters, 876 farmers.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">SCLP scenario summary</div>
+      <div class="card-subtitle">Three radius scenarios evaluated; scenario at 20 km is recommended</div>
+      <div style="display:flex;flex-direction:column;gap:10px" id="scen-cards"></div>
+    </div>
+  </div>
+
+  <!-- Row 2: AHP weights + FRM overview -->
+  <div class="two-col section-gap">
+    <div class="card">
+      <div class="card-title">AHP main-category weights</div>
+      <div class="card-subtitle">Infrastructure dominant; λ<sub>max</sub> = 5.097, CR = 0.022</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="chart-ahp-main" role="img" aria-label="Horizontal bar chart of AHP category weights">Infrastructure 41.2%, Market 26.5%, Cost 14.8%, Labour 11.5%, Macro-Environment 6.0%.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top-10 sub-criteria by global weight</div>
+      <div class="card-subtitle">16 criteria across 5 categories evaluated by pairwise comparison</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="chart-criteria-top" role="img" aria-label="Horizontal bar chart of top 10 sub-criteria global weights">M1 Proximity to ICS clusters is highest at 18.42%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Methodological note.</b> This dashboard presents the integrated AHP–SCLP–FRM framework applied to 44 GPS-surveyed candidate nodes across Dang District.
+    The Analytic Hierarchy Process (AHP) derives criterion weights; the Set Covering Location Problem (SCLP) minimises warehouse count under service-radius constraints;
+    the Facility Readiness Model (FRM) cross-validates geometric solutions against infrastructure viability. The spatial-infrastructure paradox at Bardipada (FRM = 5.58, below threshold = 6.0)
+    demonstrates the necessity of FRM post-processing for unconstrained SCLP outputs.
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════ MAP ══════════════════════════ -->
+<div id="tab-map" class="tab-panel">
+<div class="page">
+  <div class="map-layout">
+    <div class="card" style="padding:16px">
+      <div class="card-title">Spatial distribution of candidate nodes</div>
+
+      <!-- Map toolbar -->
+      <div class="map-toolbar">
+        <!-- Radius -->
+        <div class="toolbar-group">
+          <span class="toolbar-label">Service radius:</span>
+          <div class="radius-group" id="radius-group">
+            <button class="radius-btn" data-r="15">15 km</button>
+            <button class="radius-btn" data-r="17.5">17.5 km</button>
+            <button class="radius-btn active" data-r="20">20 km</button>
+          </div>
+        </div>
+        <!-- Toggle controls -->
+        <div class="toolbar-group">
+          <button class="map-ctrl-btn active" id="btn-labels" title="Toggle location name labels">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 8h8M4 10.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Labels
+          </button>
+          <button class="map-ctrl-btn active" id="btn-legend" title="Toggle floating legend">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="3.5" cy="4.5" r="2" fill="currentColor"/><rect x="7" y="3.5" width="7" height="2" rx="1" fill="currentColor"/><circle cx="3.5" cy="11.5" r="2" fill="currentColor"/><rect x="7" y="10.5" width="7" height="2" rx="1" fill="currentColor"/></svg>
+            Legend
+          </button>
+          <button class="map-ctrl-btn" id="btn-fullscreen" title="Toggle fullscreen map">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1 1h4v2H3v2H1V1zm10 0h4v4h-2V3h-2V1zM1 11h2v2h2v2H1v-4zm12 2h-2v2h4v-4h-2v2z" fill="currentColor"/></svg>
+            Fullscreen
+          </button>
+        </div>
+      </div>
+
+      <div id="scenario-info" class="scenario-strip"></div>
+
+      <!-- Map container with floating legend overlay -->
+      <div id="map-wrap" style="position:relative">
+        <div id="map"></div>
+
+        <!-- Floating legend overlay -->
+        <div id="map-legend-float" class="map-legend-float">
+          <div class="mlf-title">Map Legend</div>
+          <div class="legend-section">
+            <div class="legend-section-title">Optimal Network</div>
+            <div class="legend-row"><div class="mk-warehouse" style="background:#1a5da6"></div> WDRA Warehouse</div>
+            <div class="legend-row"><div style="width:20px;display:flex;justify-content:center;align-items:center"><div class="mk-opt-cp" style="background:#b56a0e"></div></div> Primary Collection Point</div>
+          </div>
+          <div class="legend-section">
+            <div class="legend-section-title">Candidate Nodes</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#2563a6"></div> Ahwa taluka (viable)</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#1a7a44"></div> Waghai taluka (viable)</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#b56a0e"></div> Subir taluka (viable)</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#c42828"></div> Below viability threshold</div>
+          </div>
+          <div class="legend-section">
+            <div class="legend-section-title">Coverage Circles</div>
+            <div class="legend-row"><div class="legend-sq" style="background:rgba(26,122,68,0.15);border:1.5px dashed #1a7a44"></div> 20 km — 3 warehouses</div>
+            <div class="legend-row"><div class="legend-sq" style="background:rgba(26,93,166,0.12);border:1.5px dashed #1a5da6"></div> 17.5 km — 5 warehouses</div>
+            <div class="legend-row"><div class="legend-sq" style="background:rgba(181,106,14,0.12);border:1.5px dashed #b56a0e"></div> 15 km — 5 warehouses</div>
+          </div>
+          <div class="mlf-footer">Dang District, Gujarat · AHP–SCLP–FRM</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <!-- Optimal network cards -->
+      <div class="card">
+        <div class="card-title">Optimal network nodes</div>
+        <div id="optimal-cards" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <!-- Static legend in sidebar -->
+      <div class="card">
+        <div class="card-title">Map legend</div>
+        <div class="map-legend">
+          <div class="legend-section">
+            <div class="legend-section-title">Optimal network</div>
+            <div class="legend-row"><div class="mk-warehouse" style="background:#1a5da6"></div> WDRA warehouse</div>
+            <div class="legend-row"><div style="width:20px;display:flex;justify-content:center;align-items:center"><div class="mk-opt-cp" style="background:#b56a0e"></div></div> Primary collection point</div>
+          </div>
+          <div class="legend-section">
+            <div class="legend-section-title">Candidate nodes</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#2563a6"></div> Ahwa taluka (viable)</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#1a7a44"></div> Waghai taluka (viable)</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#b56a0e"></div> Subir taluka (viable)</div>
+            <div class="legend-row"><div class="legend-dot" style="background:#c42828"></div> Below viability threshold</div>
+          </div>
+          <div class="legend-section">
+            <div class="legend-section-title">Coverage circles</div>
+            <div class="legend-row"><div class="legend-sq" style="background:rgba(26,122,68,0.15);border:1px dashed #1a7a44"></div> 20 km (3 warehouses)</div>
+            <div class="legend-row"><div class="legend-sq" style="background:rgba(26,93,166,0.12);border:1px dashed #1a5da6"></div> 17.5 km (5 warehouses)</div>
+            <div class="legend-row"><div class="legend-sq" style="background:rgba(181,106,14,0.12);border:1px dashed #b56a0e"></div> 15 km (5 warehouses)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════ FRM RANKING ═════════════════════ -->
+<div id="tab-frm" class="tab-panel">
+<div class="page">
+  <div class="two-col section-gap">
+    <div class="card">
+      <div class="card-title">FRM score distribution — all 44 nodes</div>
+      <div class="card-subtitle">Viability threshold at S<sub>j</sub> = 6.0; 35 nodes viable, 9 below threshold</div>
+      <div class="chart-wrap" style="height:340px">
+        <canvas id="chart-frm-dist" role="img" aria-label="Bar chart of FRM scores for all 44 candidate nodes with threshold line at 6.0">All 44 candidate nodes ranked by FRM score. Threshold at 6.0.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">FRM score summary statistics</div>
+      <div class="card-subtitle">FRM = Σ(AHP weight × normalised infrastructure/market/cost score)</div>
+      <div class="kpi-strip" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div class="kpi"><div class="kpi-label">Highest FRM</div><div class="kpi-value" style="font-size:20px">7.975</div><div class="kpi-sub">Ahwa (Rank 1)</div></div>
+        <div class="kpi"><div class="kpi-label">Lowest viable</div><div class="kpi-value" style="font-size:20px">6.031</div><div class="kpi-sub">Taklipada</div></div>
+        <div class="kpi"><div class="kpi-label">Viable nodes</div><div class="kpi-value" style="font-size:20px">35</div><div class="kpi-sub">of 44 candidates</div></div>
+        <div class="kpi"><div class="kpi-label">Below threshold</div><div class="kpi-value" style="font-size:20px">9</div><div class="kpi-sub">FRM &lt; 6.0</div></div>
+      </div>
+      <div class="paradox-note">
+        <b>Spatial-infrastructure paradox:</b> Bardipada (FRM = 5.58) was selected by unconstrained SCLP at 17.5 km but rejected by FRM cross-validation — no all-weather road access. This paradox illustrates why geometric optimisation alone is insufficient for tribal and forested landscapes.
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">FRM ranking — all 44 candidate nodes</div>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="frm-table"></table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════ AHP ═════════════════════════════ -->
+<div id="tab-ahp" class="tab-panel">
+<div class="page">
+  <div class="two-col section-gap">
+    <div class="card">
+      <div class="card-title">Pairwise comparison matrix — main categories</div>
+      <div class="matrix-wrap" id="ahp-matrix-wrap"></div>
+      <div style="margin-top:12px;display:flex;gap:20px;font-family:system-ui,sans-serif;font-size:11.5px;color:var(--ink3)">
+        <span>λ<sub>max</sub> = 5.097</span>
+        <span>CR = 0.022 (&lt; 0.10)</span>
+        <span>n = 5</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Category weights</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="chart-ahp-cat" role="img" aria-label="Horizontal bar chart of AHP category weights">Infrastructure 41.2%, Market 26.5%, Cost 14.8%, Labour 11.5%, Macro-Env 6.0%.</canvas>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">All 16 sub-criteria — global and local weights</div>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="criteria-table"></table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════ SCLP ════════════════════════════ -->
+<div id="tab-sclp" class="tab-panel">
+<div class="page">
+  <div class="three-col section-gap" id="scen-full-cards"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Warehouses vs average FRM score by scenario</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chart-sclp-compare" role="img" aria-label="Grouped bar and line chart comparing SCLP scenarios">Scenario A: 5 warehouses, avg FRM 7.08. Scenario B: 5, avg 7.35. Scenario C: 3, avg 6.91 — recommended.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Coverage efficiency analysis</div>
+      <div class="card-subtitle">Marginal CAPEX vs. coverage gain</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Scenario</th><th>Radius</th><th>Warehouses</th><th>CAPEX (relative)</th><th>Aggregate Sj</th><th>Avg Sj</th><th>Recommendation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A</td><td>15 km</td><td>5</td><td>+66.7%</td><td class="num">35.40</td><td class="num">7.08</td><td><span class="tag badge-blue">Viable</span></td></tr>
+          <tr><td>B</td><td>17.5 km</td><td>5</td><td>+66.7%</td><td class="num">36.74</td><td class="num">7.35</td><td><span class="tag badge-blue">Viable (FRM filter required)</span></td></tr>
+          <tr style="background:var(--green-lt)"><td><b>C</b></td><td><b>20 km</b></td><td><b>3</b></td><td><b>Base</b></td><td class="num"><b>20.73</b></td><td class="num"><b>6.91</b></td><td><span class="tag badge-green">Recommended</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════ OPTIMAL NETWORK ═════════════════ -->
+<div id="tab-network" class="tab-panel">
+<div class="page">
+  <div class="three-col section-gap" id="network-full-cards"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Procurement share by node</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="chart-procurement" role="img" aria-label="Pie chart of procurement allocation across 3 optimal nodes">Mahalpada 57.4%, Chikar 35.2%, Subir 7.4%.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Network coverage summary</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Node</th><th>Taluka</th><th>Facility type</th><th>ICS Clusters</th><th>Farmers</th><th>Procurement (MT)</th><th>Share</th><th>FRM</th></tr>
+        </thead>
+        <tbody id="network-table"></tbody>
+      </table>
+      <div style="margin-top:14px">
+        <div class="note">Total network coverage: 43 ICS clusters · 11,563 farmers · 5,226 MT/yr. All three nodes exceed the FRM viability threshold of 6.0. Mahalpada and Chikar designated WDRA-specification warehouses; Subir is the sole viable node for southern belt coverage and operates as a primary collection point.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
